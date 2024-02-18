@@ -9,29 +9,22 @@ async function sendMessage(message) {
     appendMessageToChatContainer("User", message);
     // Initialize chat or append to existing chat history in your app's state
     try {
-    const chat = model.startChat({
-        history: [], // Your chat history goes here
-        generationConfig: { maxOutputTokens: 1000 },
-    });
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message }),
+        });
 
+        const { text } = await response.json();
 
-    const result = await chat.sendMessage(message);
-    const response = await result.response;
-    const text = await response.text();
-    console.log(text); // Log the response for debugging
-
-
-    // Display bot's response in the chat container
-    appendMessageToChatContainer("Bot", text);
+        // Display bot's response in the chat container
+        appendMessageToChatContainer("Bot", text);
     } catch (error) {
-    console.error("Error sending message:", error);
-    // Display error reason as bot's output
-    let errorMessage = "Sorry, I couldn't fetch a response. Please try again later.";
-    if (error instanceof Error) {
-        // Optionally include more specific error details if appropriate
-        errorMessage = `Error: ${error.message}`;
-    }
-    appendMessageToChatContainer("Bot", errorMessage);
+        console.error("Error sending message:", error);
+        const errorMessage = "Sorry, I couldn't fetch a response. Please try again later.";
+        appendMessageToChatContainer("Bot", errorMessage);
     }
 }
 
