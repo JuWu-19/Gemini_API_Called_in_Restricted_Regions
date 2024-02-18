@@ -1,0 +1,17 @@
+/* Basic styles for chat container, input, and button */
+#chatContainer {
+    border: 1px solid #ccc;
+    padding: 10px;
+    height: 300px;
+    overflow-y: auto;
+}
+
+#userInput {
+    width: 70%;
+    padding: 10px;
+}
+
+#sendBtn {
+    width: 20%;
+    padding: 10px;
+}
