@@ -19,6 +19,13 @@ export default async (req, res) => {
 
             res.status(200).json({ text });
         } catch (error) {
+            const errorDetails = {
+                timestamp: new Date().toISOString(),
+                error: error.message,
+                stack: error.stack,
+                messageAttempted: message,
+            };
+            console.error('Enhanced Error in serverless function:', JSON.stringify(errorDetails, null, 2));
             console.error('Error in serverless function:', error);
             res.status(500).json({ text: "Sorry, there was an error processing your request." });
         }
