@@ -1,8 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const API_KEY = "AIzaSyCJ-oLIAxrtPovYJeW6zs2MGJFBxRqn1Aw"; // Use a secure method to include your API key
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 async function sendMessage(message) {
     // Display user's message in the chat container
@@ -23,6 +20,9 @@ async function sendMessage(message) {
         appendMessageToChatContainer("Bot", text);
     } catch (error) {
         console.error("Error sending message:", error);
+        // Attempt to parse and log the specific error message from the API if available
+        let detailedErrorMessage = error.response ? await error.response.text() : "No detailed error message available.";
+        console.log("Detailed error message:", detailedErrorMessage);
         const errorMessage = "Sorry, I couldn't fetch a response. Please try again later.";
         appendMessageToChatContainer("Bot", errorMessage);
     }
