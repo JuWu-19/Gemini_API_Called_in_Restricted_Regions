@@ -1,36 +1,46 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+// Node.js code for the Vercel serverless function
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+// Initialize the Gemini AI with your API key
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-export default async (req, res) => {
-    if (req.method === 'POST') {
-        const { message } = req.body;
-        const API_KEY = process.env.GEMINI_API_KEY; // Securely stored in Vercel's environment variables
-        const genAI = new GoogleGenerativeAI(API_KEY);
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+module.exports = async (req, res) => {
+    if (req.method !== 'POST') {
+        return res.status(405).end('Method Not Allowed');
+    }
+    console.log("Data to be parsed:", req.body);
+    // Parse the incoming request
+    const {newMessage,history} = req.body;
 
-        try {
-            const chat = model.startChat({
-                history: [], // Implement history management as needed
-                generationConfig: { maxOutputTokens: 1000 },
-            });
+    const simpleHistory = history.map(({ sender, message }) => {
+        // Map 'Bot' to 'model' and 'User' to 'user'
+        const role = sender === 'Bot' ? 'model' : 'user';
+        return {
+          role: role,
+          parts: message, // Directly assign message as a string
+        };
+      });
 
-            const result = await chat.sendMessage(message);
-            const response = await result.response;
-            const text = await response.text();
+    console.log("Simple History", simpleHistory);
+    try {
+        // Assume `startChat` initializes a chat session, and `sendMessage` sends a message
+        const chatSession = await genAI.getGenerativeModel({ model: "gemini-1.0-pro-latest" }).startChat({
+            history: simpleHistory,
+            generationConfig: { maxOutputTokens:8000},
+        });
 
-            res.status(200).json({ text });
-        } catch (error) {
-            const errorDetails = {
-                timestamp: new Date().toISOString(),
-                error: error.message,
-                stack: error.stack,
-                messageAttempted: message,
-            };
-            console.error('Enhanced Error in serverless function:', JSON.stringify(errorDetails, null, 2));
-            console.error('Error in serverless function:', error);
-            res.status(500).json({ text: "Sorry, there was an error processing your request." });
-        }
-    } else {
-        res.setHeader('Allow', ['POST']);
-        res.status(405).end(`Method ${req.method} Not Allowed`);
+        // Sending the new message to the chat session
+        const result = await chatSession.sendMessage(newMessage);
+        const botResponse = await result.response; // This should be adjusted based on how you receive the response
+        const botMessage = await botResponse.text(); // Adjust based on actual API response structure
+        console.log("Raw answer:", botMessage);
+
+        // Update the detailed chat history with the bot's response
+        history.push({ sender: "Bot", message: botMessage, timestamp: new Date().toISOString() });
+
+        // Respond to the client with the bot's message
+        res.json({ text: botMessage });
+    } catch (error) {
+        console.error("Error during chat session:", error);
+        res.status(500).json({ error: "Failed to process the chat message" });
     }
 };
