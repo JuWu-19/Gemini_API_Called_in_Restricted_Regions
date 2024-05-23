@@ -20,8 +20,8 @@ This project circumvents the regional restrictions of the Gemini API, allowing g
 
 2. Configure Environment Variables:
 
-Set up 'GEMINI_API_KEY', 'MONGODB_URI', and 'DB_NAME' in your environment.
+    Set up 'GEMINI_API_KEY', 'MONGODB_URI', and 'DB_NAME' in your environment.
 
 3. Run the Project:
 
-Deploy on Vercel and access the application.
+    Deploy on Vercel and access the application.
