@@ -8,9 +8,9 @@ This project circumvents the regional restrictions of the Gemini API, allowing g
 
 1. Install Dependencies:
 
-  npm install
+    npm install
 
-  {
+    {
   "dependencies": {
     "@google/generative-ai": "^0.2.1",
     "mongodb": "^6.3.0"
